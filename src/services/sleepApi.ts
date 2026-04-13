@@ -1,64 +1,38 @@
-import seedData from '../mock/babyData.json'
 import type { BabyProfile, SleepRecord } from '../types/sleep'
 
-interface DbSchema {
-  profile: BabyProfile
-  sleepRecords: SleepRecord[]
-}
+async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    ...options
+  })
 
-const LOCAL_KEY = 'baby-butler-db'
-
-const wait = (ms = 80): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
-
-function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value))
-}
-
-function loadDb(): DbSchema {
-  const cached = localStorage.getItem(LOCAL_KEY)
-  if (!cached) {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(seedData))
-    return clone(seedData as DbSchema)
+  if (!response.ok) {
+    throw new Error(`API ${response.status}: ${response.statusText}`)
   }
 
-  try {
-    return JSON.parse(cached) as DbSchema
-  } catch (_error) {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(seedData))
-    return clone(seedData as DbSchema)
-  }
-}
-
-function saveDb(data: DbSchema): void {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(data))
+  return (await response.json()) as T
 }
 
 export async function getProfile(): Promise<BabyProfile> {
-  await wait()
-  const db = loadDb()
-  return db.profile
+  return request<BabyProfile>('/api/profile')
 }
 
 export async function updateProfile(payload: Partial<BabyProfile>): Promise<BabyProfile> {
-  await wait()
-  const db = loadDb()
-  db.profile = { ...db.profile, ...payload }
-  saveDb(db)
-  return db.profile
+  return request<BabyProfile>('/api/profile', {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  })
 }
 
 export async function listSleepRecords(): Promise<SleepRecord[]> {
-  await wait()
-  const db = loadDb()
-  return [...db.sleepRecords].sort(
-    (a, b) => new Date(b.sootheStart).getTime() - new Date(a.sootheStart).getTime()
-  )
+  return request<SleepRecord[]>('/api/sleep-records')
 }
 
 export async function createSleepRecord(payload: Omit<SleepRecord, 'id'>): Promise<SleepRecord[]> {
-  await wait()
-  const db = loadDb()
-  db.sleepRecords.push({ id: `r-${Date.now()}`, ...payload })
-  saveDb(db)
-  return db.sleepRecords
+  return request<SleepRecord[]>('/api/sleep-records', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
 }

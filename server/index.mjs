@@ -1,0 +1,96 @@
+import http from 'node:http'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+
+const PORT = 3001
+const DB_PATH = path.resolve(process.cwd(), 'server/data/db.json')
+
+async function readDb() {
+  const content = await fs.readFile(DB_PATH, 'utf-8')
+  return JSON.parse(content)
+}
+
+async function writeDb(data) {
+  await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf-8')
+}
+
+function sendJson(res, status, data) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  })
+  res.end(JSON.stringify(data))
+}
+
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      if (!body) {
+        resolve({})
+        return
+      }
+      try {
+        resolve(JSON.parse(body))
+      } catch (error) {
+        reject(error)
+      }
+    })
+    req.on('error', reject)
+  })
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.method === 'OPTIONS') {
+      sendJson(res, 200, { ok: true })
+      return
+    }
+
+    if (req.url === '/api/profile' && req.method === 'GET') {
+      const db = await readDb()
+      sendJson(res, 200, db.profile)
+      return
+    }
+
+    if (req.url === '/api/profile' && req.method === 'PUT') {
+      const db = await readDb()
+      const payload = await parseBody(req)
+      db.profile = { ...db.profile, ...payload }
+      await writeDb(db)
+      sendJson(res, 200, db.profile)
+      return
+    }
+
+    if (req.url === '/api/sleep-records' && req.method === 'GET') {
+      const db = await readDb()
+      const sorted = [...db.sleepRecords].sort(
+        (a, b) => new Date(b.sootheStart).getTime() - new Date(a.sootheStart).getTime()
+      )
+      sendJson(res, 200, sorted)
+      return
+    }
+
+    if (req.url === '/api/sleep-records' && req.method === 'POST') {
+      const db = await readDb()
+      const payload = await parseBody(req)
+      db.sleepRecords.push({ id: `r-${Date.now()}`, ...payload })
+      await writeDb(db)
+      sendJson(res, 200, db.sleepRecords)
+      return
+    }
+
+    sendJson(res, 404, { message: 'Not Found' })
+  } catch (error) {
+    sendJson(res, 500, { message: 'Server Error', error: String(error) })
+  }
+})
+
+server.listen(PORT, () => {
+  console.log(`API server running: http://localhost:${PORT}`)
+})
