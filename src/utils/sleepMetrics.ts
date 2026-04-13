@@ -1,8 +1,15 @@
-import dayjs from 'dayjs'
+import dayjs, { type Dayjs } from 'dayjs'
+import type { DailyMetrics, SleepRecord, WeeklySleepItem } from '../types/sleep'
 
 const MINUTE = 60 * 1000
 
-export function fmtDuration(minutes) {
+interface MappedRecord extends Omit<SleepRecord, 'sootheStart' | 'sleepStart' | 'sleepEnd'> {
+  sootheStart: Dayjs
+  sleepStart: Dayjs
+  sleepEnd: Dayjs
+}
+
+export function fmtDuration(minutes: number): string {
   const m = Math.max(0, Math.round(minutes))
   const h = Math.floor(m / 60)
   const left = m % 60
@@ -12,7 +19,7 @@ export function fmtDuration(minutes) {
   return `${h}小时${left}分钟`
 }
 
-export function getAgeText(birthday) {
+export function getAgeText(birthday: string): string {
   const birth = dayjs(birthday)
   const now = dayjs()
   const months = now.diff(birth, 'month')
@@ -20,7 +27,10 @@ export function getAgeText(birthday) {
   return `${months}个月${days}天`
 }
 
-export function buildDailyMetrics(records, targetDate = dayjs().subtract(1, 'day')) {
+export function buildDailyMetrics(
+  records: SleepRecord[],
+  targetDate: Dayjs = dayjs().subtract(1, 'day')
+): DailyMetrics {
   const dayStart = targetDate.startOf('day')
   const dayEnd = targetDate.endOf('day')
   const list = records
@@ -38,7 +48,7 @@ export function buildDailyMetrics(records, targetDate = dayjs().subtract(1, 'day
   let soothe = 0
 
   const sorted = list.sort((a, b) => a.sleepStart.valueOf() - b.sleepStart.valueOf())
-  const intervals = []
+  const intervals: number[] = []
 
   sorted.forEach((item, index) => {
     const sleepMinutes = item.sleepEnd.diff(item.sleepStart) / MINUTE
@@ -73,7 +83,7 @@ export function buildDailyMetrics(records, targetDate = dayjs().subtract(1, 'day
   }
 }
 
-function buildDistribution(records) {
+function buildDistribution(records: MappedRecord[]): DailyMetrics['distribution'] {
   const sleepHours = Array.from({ length: 24 }, () => 0)
   const awakeHours = Array.from({ length: 24 }, () => 60)
 
@@ -88,14 +98,17 @@ function buildDistribution(records) {
     }
   })
 
+  const labels = ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22']
+  const hourAxis = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
+
   return {
-    labels: ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22'],
-    sleep: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map((h) => sleepHours[h]),
-    awake: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map((h) => awakeHours[h])
+    labels,
+    sleep: hourAxis.map((h) => sleepHours[h]),
+    awake: hourAxis.map((h) => awakeHours[h])
   }
 }
 
-function buildWeeklyHours(records) {
+function buildWeeklyHours(records: SleepRecord[]): WeeklySleepItem[] {
   return Array.from({ length: 7 }, (_item, index) => {
     const day = dayjs().subtract(6 - index, 'day')
     const hours = records

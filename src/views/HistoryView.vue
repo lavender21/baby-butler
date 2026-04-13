@@ -23,23 +23,24 @@
   </van-tabbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs'
 import { onMounted } from 'vue'
 import { useSleepStore } from '../stores/sleep'
 import { fmtDuration } from '../utils/sleepMetrics'
+import type { SleepRecord } from '../types/sleep'
 
 const store = useSleepStore()
 
-function formatDate(time) {
+function formatDate(time: string): string {
   return dayjs(time).format('MM-DD dddd')
 }
 
-function formatTime(time) {
+function formatTime(time: string): string {
   return dayjs(time).format('HH:mm')
 }
 
-function sleepDuration(item) {
+function sleepDuration(item: SleepRecord): string {
   return fmtDuration(dayjs(item.sleepEnd).diff(dayjs(item.sleepStart), 'minute'))
 }
 

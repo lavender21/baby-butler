@@ -41,17 +41,18 @@
   </van-tabbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import * as echarts from 'echarts'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useSleepStore } from '../stores/sleep'
 import { fmtDuration } from '../utils/sleepMetrics'
+import type { ECharts } from 'echarts'
 
 const store = useSleepStore()
-const distributionChartRef = ref(null)
-const trendChartRef = ref(null)
-let distributionChart
-let trendChart
+const distributionChartRef = ref<HTMLDivElement | null>(null)
+const trendChartRef = ref<HTMLDivElement | null>(null)
+let distributionChart: ECharts | null = null
+let trendChart: ECharts | null = null
 
 const metrics = computed(() => store.yesterdayMetrics)
 

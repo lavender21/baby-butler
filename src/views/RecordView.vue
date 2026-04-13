@@ -26,7 +26,7 @@
   </van-tabbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { showSuccessToast } from 'vant'
@@ -34,7 +34,7 @@ import { useSleepStore } from '../stores/sleep'
 
 const store = useSleepStore()
 const now = ref(dayjs())
-let timer
+let timer: ReturnType<typeof setInterval> | null = null
 
 const running = computed(() => store.runningRecord)
 
@@ -85,7 +85,9 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  clearInterval(timer)
+  if (timer) {
+    clearInterval(timer)
+  }
 })
 </script>
 

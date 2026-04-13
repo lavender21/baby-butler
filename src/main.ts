@@ -1,6 +1,23 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { Button, Cell, CellGroup, ConfigProvider, DatePicker, Dialog, Empty, Field, Form, Icon, NavBar, NoticeBar, Popup, Tabbar, TabbarItem, Tag } from 'vant'
+import {
+  Button,
+  Cell,
+  CellGroup,
+  ConfigProvider,
+  DatePicker,
+  Dialog,
+  Empty,
+  Field,
+  Form,
+  Icon,
+  NavBar,
+  NoticeBar,
+  Popup,
+  Tabbar,
+  TabbarItem,
+  Tag
+} from 'vant'
 import 'vant/lib/index.css'
 import App from './App.vue'
 import router from './router'

@@ -43,15 +43,16 @@
   </van-tabbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { showSuccessToast } from 'vant'
 import { useSleepStore } from '../stores/sleep'
+import type { BabyProfile } from '../types/sleep'
 
 const store = useSleepStore()
 const showDate = ref(false)
-const form = reactive({
+const form = reactive<BabyProfile>({
   name: '',
   birthday: '',
   gender: ''
@@ -62,7 +63,7 @@ const datePickerValue = computed(() => {
   return [date.format('YYYY'), date.format('MM'), date.format('DD')]
 })
 
-function onConfirmDate({ selectedValues }) {
+function onConfirmDate({ selectedValues }: { selectedValues: string[] }) {
   form.birthday = `${selectedValues[0]}-${selectedValues[1]}-${selectedValues[2]}`
   showDate.value = false
 }

@@ -4,7 +4,7 @@
   </van-config-provider>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const themeVars = {
   primaryColor: '#4f67ff',
   successColor: '#21b573',
