@@ -18,7 +18,7 @@ function sendJson(res, status, data) {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   })
   res.end(JSON.stringify(data))
@@ -43,6 +43,11 @@ function parseBody(req) {
     })
     req.on('error', reject)
   })
+}
+
+function getSleepRecordId(url = '') {
+  const matched = url.match(/^\/api\/sleep-records\/([^/]+)$/)
+  return matched ? decodeURIComponent(matched[1]) : ''
 }
 
 const server = http.createServer(async (req, res) => {
@@ -80,6 +85,43 @@ const server = http.createServer(async (req, res) => {
       const db = await readDb()
       const payload = await parseBody(req)
       db.sleepRecords.push({ id: `r-${Date.now()}`, ...payload })
+      await writeDb(db)
+      sendJson(res, 200, db.sleepRecords)
+      return
+    }
+
+    if (req.method === 'PUT' && req.url?.startsWith('/api/sleep-records/')) {
+      const db = await readDb()
+      const recordId = getSleepRecordId(req.url)
+      const payload = await parseBody(req)
+      const index = db.sleepRecords.findIndex((item) => item.id === recordId)
+
+      if (index < 0) {
+        sendJson(res, 404, { message: 'Record not found' })
+        return
+      }
+
+      db.sleepRecords[index] = {
+        ...db.sleepRecords[index],
+        ...payload,
+        id: db.sleepRecords[index].id
+      }
+      await writeDb(db)
+      sendJson(res, 200, db.sleepRecords)
+      return
+    }
+
+    if (req.method === 'DELETE' && req.url?.startsWith('/api/sleep-records/')) {
+      const db = await readDb()
+      const recordId = getSleepRecordId(req.url)
+      const nextRecords = db.sleepRecords.filter((item) => item.id !== recordId)
+
+      if (nextRecords.length === db.sleepRecords.length) {
+        sendJson(res, 404, { message: 'Record not found' })
+        return
+      }
+
+      db.sleepRecords = nextRecords
       await writeDb(db)
       sendJson(res, 200, db.sleepRecords)
       return

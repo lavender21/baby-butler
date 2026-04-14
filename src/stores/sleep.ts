@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { createSleepRecord, getProfile, listSleepRecords, updateProfile } from '../services/sleepApi'
+import {
+  createSleepRecord,
+  deleteSleepRecord,
+  getProfile,
+  listSleepRecords,
+  updateProfile,
+  updateSleepRecord
+} from '../services/sleepApi'
 import { buildDailyMetrics, getAgeText } from '../utils/sleepMetrics'
 import type { BabyProfile, RunningRecord, SleepRecord } from '../types/sleep'
 
@@ -56,6 +63,21 @@ export const useSleepStore = defineStore('sleep', () => {
     runningRecord.value = { ...EMPTY_RUNNING }
   }
 
+  async function addManualSleepRecord(payload: Omit<SleepRecord, 'id'>): Promise<void> {
+    await createSleepRecord(payload)
+    records.value = await listSleepRecords()
+  }
+
+  async function editSleepRecord(id: string, payload: Omit<SleepRecord, 'id'>): Promise<void> {
+    await updateSleepRecord(id, payload)
+    records.value = await listSleepRecords()
+  }
+
+  async function removeSleepRecord(id: string): Promise<void> {
+    await deleteSleepRecord(id)
+    records.value = await listSleepRecords()
+  }
+
   return {
     profile,
     records,
@@ -66,6 +88,9 @@ export const useSleepStore = defineStore('sleep', () => {
     saveProfile,
     startSoothe,
     startSleep,
-    endSleep
+    endSleep,
+    addManualSleepRecord,
+    editSleepRecord,
+    removeSleepRecord
   }
 })

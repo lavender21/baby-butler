@@ -36,3 +36,19 @@ export async function createSleepRecord(payload: Omit<SleepRecord, 'id'>): Promi
     body: JSON.stringify(payload)
   })
 }
+
+export async function updateSleepRecord(
+  id: string,
+  payload: Omit<SleepRecord, 'id'>
+): Promise<SleepRecord[]> {
+  return request<SleepRecord[]>(`/api/sleep-records/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function deleteSleepRecord(id: string): Promise<SleepRecord[]> {
+  return request<SleepRecord[]>(`/api/sleep-records/${id}`, {
+    method: 'DELETE'
+  })
+}

@@ -11,6 +11,33 @@
         <van-button v-else-if="running.isSootheStarted && !running.isSleeping" type="primary" block @click="onStartSleep">睡着了</van-button>
         <van-button v-else type="success" block @click="onWakeUp">睡醒了，完成记录</van-button>
       </div>
+
+      <div class="section-card">
+        <div class="record-header">
+          <div class="section-title">手动记录</div>
+          <van-button size="small" type="primary" plain @click="openCreatePage">手动添加</van-button>
+        </div>
+        <div class="value-sub">可手动填写开始时间、哄睡时长、睡眠时长，并支持编辑与删除。</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">最近记录</div>
+        <template v-if="store.records.length">
+          <div v-for="item in store.records.slice(0, 6)" :key="item.id" class="record-item">
+            <div>
+              <div class="record-main">{{ formatDateTime(item.sleepStart) }} 开始睡</div>
+              <div class="value-sub">
+                哄睡 {{ calcSootheMinutes(item) }} 分钟 · 睡眠 {{ calcSleepMinutes(item) }} 分钟
+              </div>
+            </div>
+            <div class="record-actions">
+              <van-button size="mini" plain type="primary" @click="openEditPage(item)">修改</van-button>
+              <van-button size="mini" plain type="danger" @click="onDelete(item)">删除</van-button>
+            </div>
+          </div>
+        </template>
+        <div v-else class="value-sub">暂无记录，点击上方“手动添加”创建。</div>
+      </div>
     </div>
 
     <div class="section-card" style="text-align: center">
@@ -29,10 +56,13 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { showSuccessToast } from 'vant'
+import { showConfirmDialog, showSuccessToast } from 'vant'
+import { useRouter } from 'vue-router'
 import { useSleepStore } from '../stores/sleep'
+import type { SleepRecord } from '../types/sleep'
 
 const store = useSleepStore()
+const router = useRouter()
 const now = ref(dayjs())
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -75,6 +105,39 @@ async function onWakeUp() {
   showSuccessToast('已记录本次睡眠')
 }
 
+function formatDateTime(time: string): string {
+  return dayjs(time).format('MM-DD HH:mm')
+}
+
+function calcSootheMinutes(item: SleepRecord): number {
+  return dayjs(item.sleepStart).diff(dayjs(item.sootheStart), 'minute')
+}
+
+function calcSleepMinutes(item: SleepRecord): number {
+  return dayjs(item.sleepEnd).diff(dayjs(item.sleepStart), 'minute')
+}
+
+function openCreatePage() {
+  router.push('/record/create')
+}
+
+function openEditPage(item: SleepRecord) {
+  router.push(`/record/edit/${item.id}`)
+}
+
+async function onDelete(item: SleepRecord) {
+  try {
+    await showConfirmDialog({
+      title: '删除记录',
+      message: `确认删除 ${formatDateTime(item.sleepStart)} 的睡眠记录吗？`
+    })
+    await store.removeSleepRecord(item.id)
+    showSuccessToast('已删除记录')
+  } catch (_error) {
+    // 用户取消删除
+  }
+}
+
 onMounted(async () => {
   if (!store.records.length || !store.profile.name) {
     await store.loadAll()
@@ -103,5 +166,28 @@ onBeforeUnmount(() => {
 a {
   color: #4f67ff;
   text-decoration: none;
+}
+
+.record-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eef2ff;
+  padding: 8px 0;
+}
+
+.record-main {
+  font-weight: 600;
+}
+
+.record-actions {
+  display: flex;
+  gap: 8px;
 }
 </style>
