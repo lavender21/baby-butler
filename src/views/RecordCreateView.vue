@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <van-nav-bar title="手动添加睡眠" left-arrow @click-left="router.back()" />
+    <BabyHeader title="手动添加睡眠" showBack @back="router.back()" />
 
     <div class="section-card">
       <div class="value-sub">记录日期固定为今天：{{ todayText }}，仅需选择时间。</div>
@@ -21,6 +21,7 @@ import dayjs from 'dayjs'
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { showFailToast, showSuccessToast } from 'vant'
+import BabyHeader from '../components/BabyHeader.vue'
 import { useSleepStore } from '../stores/sleep'
 
 const store = useSleepStore()

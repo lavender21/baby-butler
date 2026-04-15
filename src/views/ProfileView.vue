@@ -55,7 +55,8 @@ const showDate = ref(false)
 const form = reactive<BabyProfile>({
   name: '',
   birthday: '',
-  gender: ''
+  gender: '',
+  avatarUrl: ''
 })
 
 const datePickerValue = computed(() => {
@@ -81,5 +82,6 @@ onMounted(async () => {
   form.name = store.profile.name
   form.birthday = store.profile.birthday
   form.gender = store.profile.gender
+  form.avatarUrl = store.profile.avatarUrl || ''
 })
 </script>

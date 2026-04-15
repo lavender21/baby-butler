@@ -19,7 +19,7 @@ const EMPTY_RUNNING: RunningRecord = {
 }
 
 export const useSleepStore = defineStore('sleep', () => {
-  const profile = ref<BabyProfile>({ name: '', birthday: '', gender: '' })
+  const profile = ref<BabyProfile>({ name: '', birthday: '', gender: '', avatarUrl: '' })
   const records = ref<SleepRecord[]>([])
   const runningRecord = ref<RunningRecord>({ ...EMPTY_RUNNING })
 

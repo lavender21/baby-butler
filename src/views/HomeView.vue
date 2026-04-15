@@ -1,24 +1,21 @@
 <template>
   <div class="page">
-    <div class="section-card">
-      <div style="display: flex; align-items: center; justify-content: space-between">
-        <div>
-          <div style="font-size: 20px; font-weight: 700">{{ store.profile.name || '宝宝' }}</div>
-          <div class="value-sub">{{ store.ageText }}</div>
-        </div>
-        <van-tag type="primary" round>昨日睡眠概览</van-tag>
-      </div>
+    <BabyHeader />
 
-      <div style="margin: 16px 0 6px; text-align: center">
-        <div class="value-strong">{{ fmtDuration(metrics.total) }}</div>
+    <div class="section-card">
+      <div class="section-title">昨日睡眠概览</div>
+
+
+      <div style="margin: 16px 0 6px; text-align: center;">
+        <div class="value-strong value-total">{{ fmtDuration(metrics.total) }}</div>
         <div class="value-sub">总睡眠时长</div>
       </div>
 
       <div class="grid-metric">
-        <div class="metric-item"><b>{{ fmtDuration(metrics.night) }}</b><span>夜间睡眠</span></div>
-        <div class="metric-item"><b>{{ fmtDuration(metrics.day) }}</b><span>白天小睡</span></div>
-        <div class="metric-item"><b>{{ fmtDuration(metrics.avgSoothe) }}</b><span>平均哄睡</span></div>
-        <div class="metric-item"><b>{{ fmtDuration(metrics.avgInterval) }}</b><span>平均间隔</span></div>
+        <div class="metric-item metric-night"><b>{{ fmtDuration(metrics.night) }}</b><span>夜间睡眠</span></div>
+        <div class="metric-item metric-day"><b>{{ fmtDuration(metrics.day) }}</b><span>白天小睡</span></div>
+        <div class="metric-item metric-soothe"><b>{{ fmtDuration(metrics.avgSoothe) }}</b><span>平均哄睡时长</span></div>
+        <div class="metric-item metric-interval"><b>{{ fmtDuration(metrics.avgInterval) }}</b><span>平均睡眠间隔</span></div>
       </div>
     </div>
 
@@ -44,6 +41,7 @@
 <script setup lang="ts">
 import * as echarts from 'echarts'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import BabyHeader from '../components/BabyHeader.vue'
 import { useSleepStore } from '../stores/sleep'
 import { fmtDuration } from '../utils/sleepMetrics'
 import type { ECharts } from 'echarts'
@@ -125,12 +123,32 @@ watch(metrics, async () => {
 
 .metric-item b {
   display: block;
-  color: #4f67ff;
+  color: #4f46e5;
   margin-bottom: 4px;
 }
 
 .metric-item span {
   color: #6f7787;
   font-size: 12px;
+}
+
+.value-total {
+  color: #4f46e5;
+}
+
+.metric-night b {
+  color: #2563eb;
+}
+
+.metric-day b {
+  color: #9333ea;
+}
+
+.metric-soothe b {
+  color: #16a34a;
+}
+
+.metric-interval b {
+  color: #ea580c;
 }
 </style>

@@ -4,6 +4,17 @@ import path from 'node:path'
 
 const PORT = 3001
 const DB_PATH = path.resolve(process.cwd(), 'server/data/db.json')
+const IMAGES_DIR = path.resolve(process.cwd(), 'server/images')
+
+function getContentType(filePath) {
+  const ext = path.extname(filePath).toLowerCase()
+  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg'
+  if (ext === '.png') return 'image/png'
+  if (ext === '.webp') return 'image/webp'
+  if (ext === '.gif') return 'image/gif'
+  if (ext === '.svg') return 'image/svg+xml'
+  return 'application/octet-stream'
+}
 
 async function readDb() {
   const content = await fs.readFile(DB_PATH, 'utf-8')
@@ -54,6 +65,31 @@ const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'OPTIONS') {
       sendJson(res, 200, { ok: true })
+      return
+    }
+
+    if ((req.method === 'GET' || req.method === 'HEAD') && req.url?.startsWith('/images/')) {
+      const urlPath = decodeURIComponent(req.url.split('?')[0] || '')
+      const relative = urlPath.replace(/^\/images\//, '')
+      const resolved = path.resolve(IMAGES_DIR, relative)
+
+      if (!resolved.startsWith(IMAGES_DIR + path.sep)) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' })
+        res.end('Bad Request')
+        return
+      }
+
+      try {
+        const file = await fs.readFile(resolved)
+        res.writeHead(200, {
+          'Content-Type': getContentType(resolved),
+          'Cache-Control': 'no-cache'
+        })
+        res.end(req.method === 'HEAD' ? undefined : file)
+      } catch {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
+        res.end('Not Found')
+      }
       return
     }
 

@@ -2,7 +2,8 @@
   "profile": {
     "name": "元元",
     "birthday": "2025-08-26",
-    "gender": "女宝"
+    "gender": "女宝",
+    "avatarUrl": "/images/avatar.jpg"
   },
   "sleepRecords": []
 }

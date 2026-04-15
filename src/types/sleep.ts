@@ -2,6 +2,7 @@ export interface BabyProfile {
   name: string
   birthday: string
   gender: string
+  avatarUrl?: string
 }
 
 export interface SleepRecord {
