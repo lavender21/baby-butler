@@ -10,6 +10,16 @@
         <van-button v-if="!running.isSootheStarted" type="primary" block @click="onStartSoothe">开始哄睡</van-button>
         <van-button v-else-if="running.isSootheStarted && !running.isSleeping" type="primary" block @click="onStartSleep">睡着了</van-button>
         <van-button v-else type="success" block @click="onWakeUp">睡醒了，完成记录</van-button>
+        <van-button
+          v-if="running.isSootheStarted"
+          style="margin-top: 10px"
+          type="danger"
+          plain
+          block
+          @click="onCancelRunning"
+        >
+          取消当前记录
+        </van-button>
       </div>
 
       <div class="section-card">
@@ -57,6 +67,7 @@
 import dayjs from 'dayjs'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { showConfirmDialog, showSuccessToast } from 'vant'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useSleepStore } from '../stores/sleep'
 import type { SleepRecord } from '../types/sleep'
@@ -66,7 +77,7 @@ const router = useRouter()
 const now = ref(dayjs())
 let timer: ReturnType<typeof setInterval> | null = null
 
-const running = computed(() => store.runningRecord)
+const { runningRecord: running } = storeToRefs(store)
 
 const statusText = computed(() => {
   if (!running.value.isSootheStarted) return '准备就绪，开始记录宝宝睡眠'
@@ -103,6 +114,19 @@ function onStartSleep() {
 async function onWakeUp() {
   await store.endSleep()
   showSuccessToast('已记录本次睡眠')
+}
+
+async function onCancelRunning() {
+  try {
+    await showConfirmDialog({
+      title: '取消当前记录',
+      message: '确认取消当前哄睡/睡眠记录吗？取消后本次计时将被清空且不会保存。'
+    })
+    store.cancelRunningRecord()
+    showSuccessToast('已取消当前记录')
+  } catch (_error) {
+    // 用户取消
+  }
 }
 
 function formatDateTime(time: string): string {

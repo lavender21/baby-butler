@@ -63,6 +63,10 @@ export const useSleepStore = defineStore('sleep', () => {
     runningRecord.value = { ...EMPTY_RUNNING }
   }
 
+  function cancelRunningRecord(): void {
+    runningRecord.value = { ...EMPTY_RUNNING }
+  }
+
   async function addManualSleepRecord(payload: Omit<SleepRecord, 'id'>): Promise<void> {
     await createSleepRecord(payload)
     records.value = await listSleepRecords()
@@ -89,6 +93,7 @@ export const useSleepStore = defineStore('sleep', () => {
     startSoothe,
     startSleep,
     endSleep,
+    cancelRunningRecord,
     addManualSleepRecord,
     editSleepRecord,
     removeSleepRecord
