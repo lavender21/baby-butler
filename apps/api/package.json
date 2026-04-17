@@ -1,0 +1,18 @@
+{
+  "name": "@baby-butler/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "migrate": "node db/migrate.js",
+    "db:backup": "node db/backup.js",
+    "clean": "rm -rf node_modules"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
