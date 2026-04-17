@@ -57,8 +57,22 @@ export function buildDailyMetrics(
     const sleepMinutes = clippedEnd.diff(clippedStart) / MINUTE
     total += sleepMinutes
 
-    const sleepHour = clippedStart.hour()
-    if (sleepHour >= 20 || sleepHour < 6) {
+    // 判断是否为夜间睡眠：从晚上20:00到第二天早上6:00之间的睡眠
+    // 对于跨夜睡眠，整体视为夜间睡眠
+    const isNightSleep = () => {
+      // 使用裁剪后的时间，因为睡眠记录可能被裁剪到目标日
+      const startHour = clippedStart.hour()
+      const endHour = clippedEnd.hour()
+      const isCrossMidnight = !clippedStart.isSame(clippedEnd, 'day')
+      
+      // 夜间睡眠条件：
+      // 1. 睡眠开始时间在20:00之后
+      // 2. 睡眠结束时间在06:00之前  
+      // 3. 或者睡眠跨越了午夜
+      return startHour >= 20 || endHour < 6 || isCrossMidnight
+    }
+
+    if (isNightSleep()) {
       night += sleepMinutes
     } else {
       day += sleepMinutes
