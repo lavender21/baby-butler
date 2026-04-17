@@ -6,17 +6,32 @@ import { initDatabase } from './init.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-export function migrateFromJson() {
+interface JsonData {
+  profile: {
+    name: string
+    birthday: string
+    gender: string
+    avatarUrl: string
+  }
+  sleepRecords: Array<{
+    id: string
+    sootheStart: string
+    sleepStart: string
+    sleepEnd: string
+  }>
+}
+
+export function migrateFromJson(): void {
   const db = initDatabase()
   
   try {
     // 读取 JSON 数据
-    const jsonPath = join(__dirname, '../data/db.json')
-    const jsonData = JSON.parse(readFileSync(jsonPath, 'utf-8'))
+    const jsonPath = join(__dirname, '../../data/db.json')
+    const jsonData: JsonData = JSON.parse(readFileSync(jsonPath, 'utf-8'))
     
     // 检查是否已有数据
-    const profileCount = db.prepare('SELECT COUNT(*) as count FROM profile').get()
-    const recordsCount = db.prepare('SELECT COUNT(*) as count FROM sleep_records').get()
+    const profileCount = db.prepare('SELECT COUNT(*) as count FROM profile').get() as { count: number }
+    const recordsCount = db.prepare('SELECT COUNT(*) as count FROM sleep_records').get() as { count: number }
     
     if (profileCount.count > 0 || recordsCount.count > 0) {
       console.log('⚠️  Database already has data, skipping migration')

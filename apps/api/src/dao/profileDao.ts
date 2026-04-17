@@ -1,11 +1,16 @@
+import type Database from 'better-sqlite3'
+import type { Profile, ProfileRow } from '../types/index.js'
+
 export class ProfileDao {
-  constructor(db) {
+  private db: Database.Database
+  
+  constructor(db: Database.Database) {
     this.db = db
   }
   
-  getProfile() {
+  getProfile(): Profile | null {
     const stmt = this.db.prepare('SELECT * FROM profile ORDER BY id DESC LIMIT 1')
-    const row = stmt.get()
+    const row = stmt.get() as ProfileRow | undefined
     
     if (!row) {
       return null
@@ -19,7 +24,7 @@ export class ProfileDao {
     }
   }
   
-  updateProfile(data) {
+  updateProfile(data: Partial<Profile>): Profile {
     const profile = this.getProfile()
     
     if (!profile) {
@@ -51,6 +56,6 @@ export class ProfileDao {
       )
     }
     
-    return this.getProfile()
+    return this.getProfile()!
   }
 }

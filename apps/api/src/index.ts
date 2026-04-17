@@ -1,9 +1,8 @@
-import express from 'express'
+import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-import { readFileSync } from 'fs'
 import { initDatabase, getDatabase } from './db/init.js'
 import { migrateFromJson } from './db/migrate.js'
 import { ProfileDao } from './dao/profileDao.js'
@@ -35,12 +34,12 @@ const profileDao = new ProfileDao(db)
 const sleepRecordDao = new SleepRecordDao(db)
 
 // 静态文件服务 - 图片
-app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use('/images', express.static(path.join(__dirname, '../images')))
 
 // ==================== API Routes ====================
 
 // 获取 Profile
-app.get('/api/profile', (req, res) => {
+app.get('/api/profile', (req: Request, res: Response) => {
   try {
     const profile = profileDao.getProfile()
     
@@ -51,34 +50,43 @@ app.get('/api/profile', (req, res) => {
     res.json(profile)
   } catch (error) {
     console.error('Error getting profile:', error)
-    res.status(500).json({ message: 'Server Error', error: error.message })
+    res.status(500).json({ 
+      message: 'Server Error', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    })
   }
 })
 
 // 更新 Profile
-app.put('/api/profile', (req, res) => {
+app.put('/api/profile', (req: Request, res: Response) => {
   try {
     const profile = profileDao.updateProfile(req.body)
     res.json(profile)
   } catch (error) {
     console.error('Error updating profile:', error)
-    res.status(500).json({ message: 'Server Error', error: error.message })
+    res.status(500).json({ 
+      message: 'Server Error', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    })
   }
 })
 
 // 获取所有睡眠记录
-app.get('/api/sleep-records', (req, res) => {
+app.get('/api/sleep-records', (req: Request, res: Response) => {
   try {
     const records = sleepRecordDao.getAllRecords()
     res.json(records)
   } catch (error) {
     console.error('Error getting sleep records:', error)
-    res.status(500).json({ message: 'Server Error', error: error.message })
+    res.status(500).json({ 
+      message: 'Server Error', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    })
   }
 })
 
 // 创建睡眠记录
-app.post('/api/sleep-records', (req, res) => {
+app.post('/api/sleep-records', (req: Request, res: Response) => {
   try {
     const { sootheStart, sleepStart, sleepEnd } = req.body
     
@@ -97,14 +105,17 @@ app.post('/api/sleep-records', (req, res) => {
     res.json(records)
   } catch (error) {
     console.error('Error creating sleep record:', error)
-    res.status(500).json({ message: 'Server Error', error: error.message })
+    res.status(500).json({ 
+      message: 'Server Error', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    })
   }
 })
 
 // 更新睡眠记录
-app.put('/api/sleep-records/:id', (req, res) => {
+app.put('/api/sleep-records/:id', (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { sootheStart, sleepStart, sleepEnd } = req.body
     
     if (!sootheStart || !sleepStart || !sleepEnd) {
@@ -124,14 +135,17 @@ app.put('/api/sleep-records/:id', (req, res) => {
     res.json(records)
   } catch (error) {
     console.error('Error updating sleep record:', error)
-    res.status(500).json({ message: 'Server Error', error: error.message })
+    res.status(500).json({ 
+      message: 'Server Error', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    })
   }
 })
 
 // 删除睡眠记录
-app.delete('/api/sleep-records/:id', (req, res) => {
+app.delete('/api/sleep-records/:id', (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const records = sleepRecordDao.deleteRecord(id)
     
     if (!records) {
@@ -141,17 +155,20 @@ app.delete('/api/sleep-records/:id', (req, res) => {
     res.json(records)
   } catch (error) {
     console.error('Error deleting sleep record:', error)
-    res.status(500).json({ message: 'Server Error', error: error.message })
+    res.status(500).json({ 
+      message: 'Server Error', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    })
   }
 })
 
 // 404 处理
-app.use((req, res) => {
+app.use((req: Request, res: Response) => {
   res.status(404).json({ message: 'Not Found' })
 })
 
 // 错误处理中间件
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled error:', err)
   res.status(500).json({ message: 'Internal Server Error', error: err.message })
 })

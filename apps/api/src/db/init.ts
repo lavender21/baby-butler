@@ -5,9 +5,9 @@ import { dirname, join } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const dbPath = join(__dirname, 'baby-butler.db')
+const dbPath = join(__dirname, '../../db/baby-butler.db')
 
-export function initDatabase() {
+export function initDatabase(): Database.Database {
   const db = new Database(dbPath)
   
   // 启用外键约束
@@ -52,6 +52,6 @@ export function initDatabase() {
   return db
 }
 
-export function getDatabase() {
+export function getDatabase(): Database.Database {
   return new Database(dbPath)
 }

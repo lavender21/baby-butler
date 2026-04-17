@@ -4,15 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node index.js",
-    "start": "node index.js",
-    "migrate": "node db/migrate.js",
-    "db:backup": "node db/backup.js",
-    "clean": "rm -rf node_modules"
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "migrate": "tsx src/db/migrate.ts",
+    "db:backup": "tsx src/db/backup.ts",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
     "better-sqlite3": "^12.9.0",
     "cors": "^2.8.6",
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
   }
 }
