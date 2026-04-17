@@ -30,18 +30,14 @@
     </div>
   </div>
 
-  <van-tabbar route>
-    <van-tabbar-item to="/" icon="home-o">首页</van-tabbar-item>
-    <van-tabbar-item to="/record" icon="clock-o">记录</van-tabbar-item>
-    <van-tabbar-item to="/history" icon="records-o">历史</van-tabbar-item>
-    <van-tabbar-item to="/profile" icon="manager-o">我的</van-tabbar-item>
-  </van-tabbar>
+  <AppTabbar />
 </template>
 
 <script setup lang="ts">
 import * as echarts from 'echarts'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import BabyHeader from '../components/BabyHeader.vue'
+import AppTabbar from '../components/AppTabbar.vue'
 import { useSleepStore } from '../stores/sleep'
 import { fmtDuration } from '../utils/sleepMetrics'
 import type { ECharts } from 'echarts'

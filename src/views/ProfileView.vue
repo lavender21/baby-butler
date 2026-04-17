@@ -35,18 +35,14 @@
     </van-popup>
   </div>
 
-  <van-tabbar route>
-    <van-tabbar-item to="/" icon="home-o">首页</van-tabbar-item>
-    <van-tabbar-item to="/record" icon="clock-o">记录</van-tabbar-item>
-    <van-tabbar-item to="/history" icon="records-o">历史</van-tabbar-item>
-    <van-tabbar-item to="/profile" icon="manager-o">我的</van-tabbar-item>
-  </van-tabbar>
+  <AppTabbar />
 </template>
 
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { showSuccessToast } from 'vant'
+import AppTabbar from '../components/AppTabbar.vue'
 import { useSleepStore } from '../stores/sleep'
 import type { BabyProfile } from '../types/sleep'
 

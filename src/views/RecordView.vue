@@ -55,12 +55,7 @@
     </div>
   </div>
 
-  <van-tabbar route>
-    <van-tabbar-item to="/" icon="home-o">首页</van-tabbar-item>
-    <van-tabbar-item to="/record" icon="clock-o">记录</van-tabbar-item>
-    <van-tabbar-item to="/history" icon="records-o">历史</van-tabbar-item>
-    <van-tabbar-item to="/profile" icon="manager-o">我的</van-tabbar-item>
-  </van-tabbar>
+  <AppTabbar />
 </template>
 
 <script setup lang="ts">
@@ -69,6 +64,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { showConfirmDialog, showSuccessToast } from 'vant'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import AppTabbar from '../components/AppTabbar.vue'
 import { useSleepStore } from '../stores/sleep'
 import type { SleepRecord } from '../types/sleep'
 
