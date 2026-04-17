@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 .kiro
+
+# Database files
+server/db/*.db
+server/db/*.db-shm
+server/db/*.db-wal
+!server/db/*-backup-*.db
