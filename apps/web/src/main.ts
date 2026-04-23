@@ -16,7 +16,8 @@ import {
   Popup,
   Tabbar,
   TabbarItem,
-  Tag
+  Tag,
+  TimePicker
 } from 'vant'
 import 'vant/lib/index.css'
 import App from './App.vue'
@@ -43,5 +44,6 @@ app.use(Popup)
 app.use(Tabbar)
 app.use(TabbarItem)
 app.use(Tag)
+app.use(TimePicker)
 
 app.mount('#app')
